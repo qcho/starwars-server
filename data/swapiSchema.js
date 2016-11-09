@@ -301,6 +301,13 @@ starships.forEach((ship) => {
   starshipData[ship.id] = ship;
 });
 
+var reviews = {
+  'NEWHOPE': [],
+  'EMPIRE': [],
+  'JEDI': []
+};
+
+
 /**
  * Helper function to get a character by ID.
  */
@@ -326,6 +333,13 @@ function getHero(episode) {
   }
   // Artoo is the hero otherwise.
   return droidData['2001'];
+}
+
+/**
+ * Allows us to fetch the ephemeral reviews for each episode
+ */
+function getReviews(episode) {
+  return reviews[episode];
 }
 
 /**
@@ -361,7 +375,7 @@ const resolvers = {
     human: (root, { id }) => getHuman(id),
     droid: (root, { id }) => getDroid(id),
     starship: (root, { id }) => getStarship(id),
-    reviews: () => null,
+    reviews: (root, { episode }) => getReviews(episode),
     search: (root, { text }) => {
       const re = new RegExp(text, 'i');
 
@@ -375,7 +389,10 @@ const resolvers = {
     },
   },
   Mutation: {
-    createReview: (root, { episode, review }) => review,
+    createReview: (root, { episode, review }) => {
+      reviews[episode].push(review);
+      return review;
+    },
   },
   Character: {
     __resolveType(data, context, info){
